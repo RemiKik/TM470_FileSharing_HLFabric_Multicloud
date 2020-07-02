@@ -196,7 +196,7 @@ public final class CredentialsCC implements ContractInterface {
         }
         Credential cc = genson.deserialize(ccState, Credential.class);
 
-        if (cc.getAccess_level().equals("3")){
+        if (access >= 3){
             stub.delPrivateData("collectionCredentials", key);
         }
         else {
