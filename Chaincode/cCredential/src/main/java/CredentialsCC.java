@@ -44,7 +44,7 @@ public final class CredentialsCC implements ContractInterface {
     @Transaction()
     public Credential queryCredential(final Context ctx, final String key) {
         ChaincodeStub stub = ctx.getStub();
-        String ccState = stub.getStringState(key);
+        String ccState = stub.getPrivateDataUTF8("collectionCredentials", key);
         ClientIdentity cid = ctx.getClientIdentity();
         Integer access = Integer.valueOf(cid.getAttributeValue("alevel"));
         if (ccState.isEmpty()) {
@@ -57,10 +57,10 @@ public final class CredentialsCC implements ContractInterface {
         if (cc.getAccess_level().equals("1")){
             return cc;
         }
-        if (cc.getAccess_level().equals("2") || access >= 2){
+        if (cc.getAccess_level().equals("2") && access >= 2){
             return cc;
         }
-        if (cc.getAccess_level().equals("3") || access >= 3){
+        if (access >= 3){
             return cc;
         }
         else {
@@ -91,7 +91,7 @@ public final class CredentialsCC implements ContractInterface {
 
             Credential cred = genson.deserialize(credData[i], Credential.class);
             String ccState = genson.serialize(cred);
-            stub.putStringState(key, ccState);
+            stub.putPrivateData("collectionCredentials",key, ccState);
         }
     }
 
@@ -112,7 +112,7 @@ public final class CredentialsCC implements ContractInterface {
         ChaincodeStub stub = ctx.getStub();
         ClientIdentity cid = ctx.getClientIdentity();
         String access = cid.getAttributeValue("alevel");
-        String credState = stub.getStringState(key);
+        String credState = stub.getPrivateDataUTF8("collectionCredentials", key);
         if (!credState.isEmpty()) {
             String errorMessage = String.format("Credential %s already exists", key);
             System.out.println(errorMessage);
@@ -122,7 +122,7 @@ public final class CredentialsCC implements ContractInterface {
         if (access.equals("3")){
             cred = new Credential(provider, access_key, secret_key, access_level);
             credState = genson.serialize(cred);
-            stub.putStringState(key, credState);
+            stub.putPrivateData("collectionCredentials",key, credState);
         }
         else {
             String errorMessage = String.format("Access denied", key);
@@ -133,7 +133,7 @@ public final class CredentialsCC implements ContractInterface {
     }
 
     /**
-     * Changes the owner of a credential on the ledger.
+     * Updates of a credential on the ledger.
      *
      * @param ctx the transaction context
      * @param key the key
@@ -147,7 +147,7 @@ public final class CredentialsCC implements ContractInterface {
     public Credential updateCredential(final Context ctx, final String key, final String provider, final String access_key,
                            final String secret_key, final String access_level) {
         ChaincodeStub stub = ctx.getStub();
-        String credState = stub.getStringState(key);
+        String credState = stub.getPrivateDataUTF8("collectionCredentials", key);
         ClientIdentity cid = ctx.getClientIdentity();
         String access = cid.getAttributeValue("alevel");
         if (credState.isEmpty()) {
@@ -160,7 +160,7 @@ public final class CredentialsCC implements ContractInterface {
         if (access.equals("3")){
             cred = new Credential(provider, access_key, secret_key, access_level);
             credState = genson.serialize(cred);
-            stub.putStringState(key, credState);
+            stub.putPrivateData("collectionCredentials",key, credState);
         }
         else {
             String errorMessage = String.format("Access denied", key);
@@ -180,7 +180,7 @@ public final class CredentialsCC implements ContractInterface {
         final String endKey = "CC99";
 
         List<CredentialQueryResult> queryResults = new ArrayList<CredentialQueryResult>();
-        QueryResultsIterator<KeyValue> results = stub.getStateByRange(startKey, endKey);
+        QueryResultsIterator<KeyValue> results = stub.getPrivateDataByRange("collectionCredentials",startKey, endKey);
 
         for (KeyValue result: results) {
             Credential cc = genson.deserialize(result.getStringValue(), Credential.class);
