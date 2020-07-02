@@ -51,10 +51,10 @@ public final class CredentialsCC implements ContractInterface {
         ChaincodeStub stub = ctx.getStub();
 
         String[] credData = {
-                "{ \"provider\": \"AWS\", \"bucket\": \"bucket2x\", \"access_key\": \"abc123\", \"secret_key\": \"qweryu\", \"access_level\": \"1\" }",
-                "{ \"provider\": \"AWS\", \"bucket\": \"bucket2x\", \"access_key\": \"abc123\", \"secret_key\": \"qweryu\", \"access_level\": \"2\" }",
-                "{ \"provider\": \"GCS\", \"bucket\": \"bucket2x\", \"access_key\": \"abc123\", \"secret_key\": \"qweryu\", \"access_level\": \"1\" }",
-                "{ \"provider\": \"GCS\", \"bucket\": \"bucket2x\", \"access_key\": \"abc123\", \"secret_key\": \"qweryu\", \"access_level\": \"2\" }"
+                "{ \"provider\": \"AWS\", \"bucket\": \"bucket\", \"access_key\": \"acKey\", \"secret_key\": \"secKey\", \"access_level\": \"1\" }",
+                "{ \"provider\": \"AWS\", \"bucket\": \"bucket\", \"access_key\": \"acKey\", \"secret_key\": \"secKey\", \"access_level\": \"2\" }",
+                "{ \"provider\": \"GCS\", \"bucket\": \"bucket\", \"access_key\": \"acKey\", \"secret_key\": \"secKey\", \"access_level\": \"1\" }",
+                "{ \"provider\": \"GCS\", \"bucket\": \"bucket\", \"access_key\": \"acKey\", \"secret_key\": \"secKey\", \"access_level\": \"2\" }"
         };
 
         for (int i = 0; i < credData.length; i++) {
@@ -66,7 +66,7 @@ public final class CredentialsCC implements ContractInterface {
         }
     }
 
-    
+
 
     /**
      * Creates a new credential on the ledger.
