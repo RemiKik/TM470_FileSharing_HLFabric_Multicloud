@@ -12,6 +12,9 @@ public final class Credential {
     private final String provider;
 
     @Property()
+    private final String bucket;
+
+    @Property()
     private final String access_key;
 
     @Property()
@@ -22,6 +25,10 @@ public final class Credential {
 
     public String getProvider() {
         return provider;
+    }
+
+    public String getBucket() {
+        return bucket;
     }
 
     public String getAccess_key() {
@@ -36,9 +43,10 @@ public final class Credential {
         return access_level;
     }
 
-    public Credential(@JsonProperty("provider") final String provider, @JsonProperty("access_key") final String access_key,
+    public Credential(@JsonProperty("provider") final String provider, @JsonProperty("bucket") final String bucket, @JsonProperty("access_key") final String access_key,
                @JsonProperty("secret_key") final String secret_key, @JsonProperty("access_level") final String access_level) {
         this.provider = provider;
+        this.bucket = bucket;
         this.access_key = access_key;
         this.secret_key = secret_key;
         this.access_level = access_level;
@@ -56,18 +64,18 @@ public final class Credential {
 
         Credential other = (Credential) obj;
 
-        return Objects.deepEquals(new String[] {getProvider(), getAccess_key(), getSecret_key(), getAccess_level()},
-                new String[] {other.getProvider(), other.getAccess_key(), other.getSecret_key(), other.getAccess_level()});
+        return Objects.deepEquals(new String[] {getProvider(), getBucket(), getAccess_key(), getSecret_key(), getAccess_level()},
+                new String[] {other.getProvider(), other.getBucket(), other.getAccess_key(), other.getSecret_key(), other.getAccess_level()});
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getProvider(), getAccess_key(), getSecret_key(), getAccess_level());
+        return Objects.hash(getProvider(), getBucket(), getAccess_key(), getSecret_key(), getAccess_level());
     }
 
     @Override
     public String toString() {
-        return this.getClass().getSimpleName() + "@" + Integer.toHexString(hashCode()) + " [provider=" + provider + ", access_key="
-                + access_key + ", secret_key=" + secret_key + ", access_level=" + access_level + "]";
+        return this.getClass().getSimpleName() + "@" + Integer.toHexString(hashCode()) + " [provider=" + provider + ", bucket="
+                + bucket + ", access_key=" + access_key + ", secret_key=" + secret_key + ", access_level=" + access_level + "]";
     }
 }

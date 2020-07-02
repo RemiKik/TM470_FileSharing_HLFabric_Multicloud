@@ -41,8 +41,78 @@ public final class CredentialsCC implements ContractInterface {
         ACCESS_DENIED
     }
 
+    /**
+     * Creates some initial Credentials on the ledger.
+     *
+     * @param ctx the transaction context
+     */
     @Transaction()
-    public Credential queryCredential(final Context ctx, final String key) {
+    public void initLedger(final Context ctx) {
+        ChaincodeStub stub = ctx.getStub();
+
+        String[] credData = {
+                "{ \"provider\": \"AWS\", \"bucket\": \"bucket2x\", \"access_key\": \"abc123\", \"secret_key\": \"qweryu\", \"access_level\": \"1\" }",
+                "{ \"provider\": \"AWS\", \"bucket\": \"bucket2x\", \"access_key\": \"abc123\", \"secret_key\": \"qweryu\", \"access_level\": \"2\" }",
+                "{ \"provider\": \"GCS\", \"bucket\": \"bucket2x\", \"access_key\": \"abc123\", \"secret_key\": \"qweryu\", \"access_level\": \"1\" }",
+                "{ \"provider\": \"GCS\", \"bucket\": \"bucket2x\", \"access_key\": \"abc123\", \"secret_key\": \"qweryu\", \"access_level\": \"2\" }"
+        };
+
+        for (int i = 0; i < credData.length; i++) {
+            String key = String.format("CC%d", i);
+
+            Credential cred = genson.deserialize(credData[i], Credential.class);
+            String ccState = genson.serialize(cred);
+            stub.putPrivateData("collectionCredentials",key, ccState);
+        }
+    }
+
+    
+
+    /**
+     * Creates a new credential on the ledger.
+     *
+     * @param ctx the transaction context
+     * @param key the key for the new credential
+     * @param provider the provider of the new credential
+     * @param access_key the access_key of the new credential
+     * @param secret_key the secret_key of the new credential
+     * @param access_level the access_level of the new credential
+     * @return the created credential
+     */
+    @Transaction()
+    public Credential createCredential(final Context ctx, final String key, final String provider, final String bucket, final String access_key,
+                           final String secret_key, final String access_level) {
+        ChaincodeStub stub = ctx.getStub();
+        ClientIdentity cid = ctx.getClientIdentity();
+        String access = cid.getAttributeValue("alevel");
+        String credState = stub.getPrivateDataUTF8("collectionCredentials", key);
+        if (!credState.isEmpty()) {
+            String errorMessage = String.format("Credential %s already exists", key);
+            System.out.println(errorMessage);
+            throw new ChaincodeException(errorMessage, CredentialErrors.ALREADY_EXISTS.toString());
+        }
+        Credential cred = null;
+        if (access.equals("3")){
+            cred = new Credential(provider, bucket, access_key, secret_key, access_level);
+            credState = genson.serialize(cred);
+            stub.putPrivateData("collectionCredentials",key, credState);
+        }
+        else {
+            String errorMessage = String.format("Access denied", key);
+            System.out.println(errorMessage);
+            throw new ChaincodeException(errorMessage, CredentialErrors.ACCESS_DENIED.toString());
+        }
+        return cred;
+    }
+
+    /**
+     * Read a  credential on the ledger.
+     * @param ctx the transaction context
+     * @param key the key for the new credential
+     * @return the credential
+     */
+    @Transaction()
+    public Credential readCredential(final Context ctx, final String key) {
         ChaincodeStub stub = ctx.getStub();
         String ccState = stub.getPrivateDataUTF8("collectionCredentials", key);
         ClientIdentity cid = ctx.getClientIdentity();
@@ -71,68 +141,6 @@ public final class CredentialsCC implements ContractInterface {
     }
 
     /**
-     * Creates some initial Credentials on the ledger.
-     *
-     * @param ctx the transaction context
-     */
-    @Transaction()
-    public void initLedger(final Context ctx) {
-        ChaincodeStub stub = ctx.getStub();
-
-        String[] credData = {
-                "{ \"provider\": \"AWS\", \"access_key\": \"abc123\", \"secret_key\": \"qweryu\", \"access_level\": \"1\" }",
-                "{ \"provider\": \"AWS\", \"access_key\": \"abc123\", \"secret_key\": \"qweryu\", \"access_level\": \"2\" }",
-                "{ \"provider\": \"GCS\", \"access_key\": \"abc123\", \"secret_key\": \"qweryu\", \"access_level\": \"1\" }",
-                "{ \"provider\": \"GCS\", \"access_key\": \"abc123\", \"secret_key\": \"qweryu\", \"access_level\": \"2\" }"
-        };
-
-        for (int i = 0; i < credData.length; i++) {
-            String key = String.format("CC%d", i);
-
-            Credential cred = genson.deserialize(credData[i], Credential.class);
-            String ccState = genson.serialize(cred);
-            stub.putPrivateData("collectionCredentials",key, ccState);
-        }
-    }
-
-    /**
-     * Creates a new credential on the ledger.
-     *
-     * @param ctx the transaction context
-     * @param key the key for the new credential
-     * @param provider the provider of the new credential
-     * @param access_key the access_key of the new credential
-     * @param secret_key the secret_key of the new credential
-     * @param access_level the access_level of the new credential
-     * @return the created credential
-     */
-    @Transaction()
-    public Credential createCredential(final Context ctx, final String key, final String provider, final String access_key,
-                           final String secret_key, final String access_level) {
-        ChaincodeStub stub = ctx.getStub();
-        ClientIdentity cid = ctx.getClientIdentity();
-        String access = cid.getAttributeValue("alevel");
-        String credState = stub.getPrivateDataUTF8("collectionCredentials", key);
-        if (!credState.isEmpty()) {
-            String errorMessage = String.format("Credential %s already exists", key);
-            System.out.println(errorMessage);
-            throw new ChaincodeException(errorMessage, CredentialErrors.ALREADY_EXISTS.toString());
-        }
-        Credential cred = null;
-        if (access.equals("3")){
-            cred = new Credential(provider, access_key, secret_key, access_level);
-            credState = genson.serialize(cred);
-            stub.putPrivateData("collectionCredentials",key, credState);
-        }
-        else {
-            String errorMessage = String.format("Access denied", key);
-            System.out.println(errorMessage);
-            throw new ChaincodeException(errorMessage, CredentialErrors.ACCESS_DENIED.toString());
-        }
-        return cred;
-    }
-
-    /**
      * Updates of a credential on the ledger.
      *
      * @param ctx the transaction context
@@ -144,7 +152,7 @@ public final class CredentialsCC implements ContractInterface {
      * @return the updated credential
      */
     @Transaction()
-    public Credential updateCredential(final Context ctx, final String key, final String provider, final String access_key,
+    public Credential updateCredential(final Context ctx, final String key, final String provider, final String bucket, final String access_key,
                            final String secret_key, final String access_level) {
         ChaincodeStub stub = ctx.getStub();
         String credState = stub.getPrivateDataUTF8("collectionCredentials", key);
@@ -158,7 +166,7 @@ public final class CredentialsCC implements ContractInterface {
         Credential cred = null;
 
         if (access.equals("3")){
-            cred = new Credential(provider, access_key, secret_key, access_level);
+            cred = new Credential(provider, bucket, access_key, secret_key, access_level);
             credState = genson.serialize(cred);
             stub.putPrivateData("collectionCredentials",key, credState);
         }
@@ -170,6 +178,40 @@ public final class CredentialsCC implements ContractInterface {
         return cred;
     }
 
+    /**
+     * Delete the  credential from the ledger.
+     * @param ctx the transaction context
+     * @param key the key for the new credential
+     */
+    @Transaction()
+    public void deleteCredential(final Context ctx, final String key) {
+        ChaincodeStub stub = ctx.getStub();
+        String ccState = stub.getPrivateDataUTF8("collectionCredentials", key);
+        ClientIdentity cid = ctx.getClientIdentity();
+        Integer access = Integer.valueOf(cid.getAttributeValue("alevel"));
+        if (ccState.isEmpty()) {
+            String errorMessage = String.format("Credential %s does not exist", key);
+            System.out.println(errorMessage);
+            throw new ChaincodeException(errorMessage, CredentialErrors.NOT_FOUND.toString());
+        }
+        Credential cc = genson.deserialize(ccState, Credential.class);
+
+        if (cc.getAccess_level().equals("3")){
+            stub.delPrivateData("collectionCredentials", key);
+        }
+        else {
+            String errorMessage = String.format("Access denied", key);
+            System.out.println(errorMessage);
+            throw new ChaincodeException(errorMessage, CredentialErrors.ACCESS_DENIED.toString());
+        }
+    }
+
+
+    /**
+     * Query all  credential on the ledger under users access level.
+     * @param ctx the transaction context
+     * @return the CredentialQueryResult
+     */
     @Transaction()
     public CredentialQueryResult[] queryAllCredentials(final Context ctx) {
         ChaincodeStub stub = ctx.getStub();
