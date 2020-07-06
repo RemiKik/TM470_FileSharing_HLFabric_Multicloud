@@ -64,7 +64,7 @@ public final class fileContract implements ContractInterface {
         ClientIdentity cid = ctx.getClientIdentity();
         Integer access = Integer.valueOf(cid.getAttributeValue("alevel"));
         String fdState = stub.getPrivateDataUTF8("collectionFiles", key);
-        String author = cid.getMSPID();
+        String author = cid.getId();
         if (!fdState.isEmpty()) {
             String errorMessage = String.format("fileData %s already exists", key);
             System.out.println(errorMessage);
@@ -134,7 +134,7 @@ public final class fileContract implements ContractInterface {
         String fdState = stub.getPrivateDataUTF8("collectionFiles", key);
         ClientIdentity cid = ctx.getClientIdentity();
         String access = cid.getAttributeValue("alevel");
-        String author = cid.getMSPID();
+        String author = cid.getId();
         if (fdState.isEmpty()) {
             String errorMessage = String.format("fileData %s does not exist", key);
             System.out.println(errorMessage);
@@ -166,7 +166,7 @@ public final class fileContract implements ContractInterface {
         String fdState = stub.getPrivateDataUTF8("collectionFiles", key);
         ClientIdentity cid = ctx.getClientIdentity();
         Integer access = Integer.valueOf(cid.getAttributeValue("alevel"));
-        String author = cid.getMSPID();
+        String author = cid.getId();
         if (fdState.isEmpty()) {
             String errorMessage = String.format("fileData %s does not exist", key);
             System.out.println(errorMessage);
@@ -198,7 +198,7 @@ public final class fileContract implements ContractInterface {
         String fdState = stub.getPrivateDataUTF8("collectionFiles", key);
         ClientIdentity cid = ctx.getClientIdentity();
         String access = cid.getAttributeValue("alevel");
-        String owner = cid.getMSPID();
+        String owner = cid.getId();
         if (fdState.isEmpty()) {
             String errorMessage = String.format("fileData %s does not exist", key);
             System.out.println(errorMessage);
