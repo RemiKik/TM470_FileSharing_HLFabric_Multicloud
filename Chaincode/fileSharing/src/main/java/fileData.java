@@ -30,7 +30,7 @@ public final class fileData {
     private final String encryption_key;
 
     @Property()
-    private final String status;
+    private final String buckets;
 
     @Property()
     private final String access_level;
@@ -63,8 +63,8 @@ public final class fileData {
         return encryption_key;
     }
 
-    public String getStatus() {
-        return status;
+    public String getBuckets() {
+        return buckets;
     }
 
     public String getAccess_level() {
@@ -74,7 +74,7 @@ public final class fileData {
     public fileData(@JsonProperty("name") final String name, @JsonProperty("format") final String format,
                       @JsonProperty("size") final String size, @JsonProperty("hash") final String hash,
                     @JsonProperty("author") final String author, @JsonProperty("creation_date") final String creation_date,
-                    @JsonProperty("encryption_key") final String encryption_key, @JsonProperty("status") final String status,
+                    @JsonProperty("encryption_key") final String encryption_key, @JsonProperty("buckets") final String buckets,
                     @JsonProperty("access_level") final String access_level) {
 
         this.name = name;
@@ -84,7 +84,7 @@ public final class fileData {
         this.author = author;
         this.creation_date = creation_date;
         this.encryption_key = encryption_key;
-        this.status = status;
+        this.buckets = buckets;
         this.access_level = access_level;
     }
 
@@ -100,18 +100,18 @@ public final class fileData {
 
         fileData other = (fileData) obj;
 
-        return Objects.deepEquals(new String[] {getName(), getFormat(), getSize(),getHash(),getAuthor(),getCreation_date(),getEncryption_key(),getStatus(), getAccess_level()},
-                new String[] {other.getName(), other.getFormat(), other.getSize(),other.getHash(),other.getAuthor(),other.getCreation_date(),other.getEncryption_key(),other.getStatus(), other.getAccess_level()});
+        return Objects.deepEquals(new String[] {getName(), getFormat(), getSize(),getHash(),getAuthor(),getCreation_date(),getEncryption_key(),getBuckets(), getAccess_level()},
+                new String[] {other.getName(), other.getFormat(), other.getSize(),other.getHash(),other.getAuthor(),other.getCreation_date(),other.getEncryption_key(),other.getBuckets(), other.getAccess_level()});
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getName(), getFormat(), getSize(),getHash(),getAuthor(),getCreation_date(),getEncryption_key(),getStatus(), getAccess_level());
+        return Objects.hash(getName(), getFormat(), getSize(),getHash(),getAuthor(),getCreation_date(),getEncryption_key(),getBuckets(), getAccess_level());
     }
 
     @Override
     public String toString() {
         return this.getClass().getSimpleName() + "@" + Integer.toHexString(hashCode()) + " [name=" + name + ", format=" + format + ", size=" + size + ", hash=" + hash + ", author=" + author + ", creation_date=" + creation_date +", encryption_key="
-                + encryption_key + ", status=" + status +  ", access_level=" + access_level + "]";
+                + encryption_key + ", buckets=" + buckets +  ", access_level=" + access_level + "]";
     }
 }
